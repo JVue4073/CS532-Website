@@ -1,0 +1,115 @@
+Physician
+Title: Efficient Management of Patient Consultations and Orders
+
+As a physician, 
+I want a system that allows me to quickly access patient records, schedule appointments, and manage lab and pharmacy orders, so that I can provide timely and effective care while minimizing administrative tasks and ensuring that all relevant information is easily accessible.
+
+Acceptance Criteria:
+- Accessing Patient Records: I can view complete patient history such as their past visits, lab results, and current prescriptions in a single integrated view.
+
+- Scheduling Appointments: I can easily schedule, reschedule, or cancel appointments and view my schedules daily, weekly, and monthly.
+
+- Managing Orders: I can place lab orders and prescriptions and track their status from submission to completion.
+
+- Notification Integration: I can receive notifications for appointment changes, lab results, and prescription updates to stay informed about my patient's status.
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Physician Assistant
+Title: Streamlined Coordination of Patient Care
+
+As a physician assistant,
+I want to manage patient appointments, update medical records, and track lab and pharmacy orders efficiently, so that I can support physicians and ensure that all patient care tasks are completed accurately and promptly.
+
+Acceptance Criteria:
+- Update Records: I can enter and update patient information such as visitation records and treatment plans.
+
+- Track Orders: I can monitor lab orders and status of lab tests and check if follow-up actions are needed.
+
+- Appointment Management: I can handle scheduling changes and communicate them effectively to patients and physicians.
+
+- Integration with Other Modules: I can access and utilize information from other system modules within patient records.
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Nurse
+Title: Efficient Patient Interaction and Record-Keeping
+
+As a nurse,
+I want a system that allows me to quickly access patient information, update records and track medication administration, so that I can provide high-quality patient care and keep accurate records without delays.
+
+Acceptance Criteria:
+- Receive Test Orders: I can access and view lab test orders after submission.
+
+- Process Tests: I can log test results and update the system with findings promptly.
+
+- Track Orders: I can monitor the status of each test, from receipt to result reporting.
+
+- Patient Record Integration:  I can ensure that lab results are properly integrated into patient records and available for review by physicians and physician assistants.
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Pharmacist
+Title: Accurate Management of Prescription Orders
+
+As a pharmacist,
+I want a system that allows me to receive, process, and track prescription orders efficiently, so that I can ensure that all prescriptions are filled accurately in a timely manner.
+
+Acceptance Criteria:
+- Receive Orders: I can view and process incoming prescription orders from physicians and physician assistants.
+
+- Track Prescriptions: I can monitor the status of each prescription, including preparation and dispensing.
+
+- Manage Inventory: I can track medication inventory levels and request restocks as needed.
+
+- Alert System: I receive alerts for any issues or delays with prescription orders and can address them promptly.
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Part-Time Backup Pharmacist
+Title: Support Pharmacist Operations During Peak Times
+
+As a part-time backup pharmacist,
+I want to access and manage prescription orders and medication inventory when the primary pharmacist is unavailable, so that I can ensure continuous operation of the pharmacy and maintain service levels.
+
+Acceptance Criteria:
+- Access System: I can log in and access all necessary prescription and inventory information.
+
+- Handle Orders: I can process prescription orders, manage medication inventory, and address any issues that arise during my shifts.
+
+- Communication: I can communicate effectively with the primary pharmacist and other clinic staff about ongoing tasks and any issues encountered.
+
+- Documentation: I can document any changes or updates made during my shift to ensure smooth transition back to the primary pharmacist.
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Lab Technician
+Title: Efficient Processing and Tracking of Lab Tests
+
+As a lab technician,
+I want a system that allows me to receive, process, and track lab test orders and results, so that I can ensure accurate and timely lab results for patient care.
+
+Acceptance Criteria:
+- Receive Test Orders: I can access and view lab test orders as they are submitted.
+
+- Process Tests: I can log test results and update the system with findings promptly.
+
+- Track Orders: I can monitor the status of each test, from receipt to result reporting.
+
+- Integration with Patient Records: I can ensure that lab results are integrated into patient records and available for review by physicians and physician assistants.
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Part-Time Backup Lab Technician
+Title: Support Lab Operations During High Workload Periods
+
+As a part-time backup lab technician, I want to manage and process lab test orders during peak periods or when the primary technician is unavailable, so that lab operations continue smoothly and patient care is not disrupted.
+
+Acceptance Criteria:
+- Access Test Orders: I can log in to the system and access all lab test orders and related information.
+    
+- Process and Document: I can process lab tests, document results, and ensure that all records are updated accurately.
+    
+- Coordinate with Primary Technician: I can communicate with the primary lab technician and other staff regarding test statuses and any issues.
+    
+- Maintain Records: I can ensure that all test results are accurately recorded and integrated into patient records before the end of my shift.
