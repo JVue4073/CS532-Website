@@ -29,3 +29,5 @@ repeat # 1 - 3 above for each team member (not yourself)
 
 **Han Luu** - Insurance and billing UI design- solely
 **Jacob Opatz** - Schedule UI design (Soley), implemented database in django (Co-Develop), Django set-up (solely),
+
+**Joseph Vue** - Pharmacy Order Tracking UI Design - solely
