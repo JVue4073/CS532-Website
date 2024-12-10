@@ -1,11 +1,9 @@
 from django.views import View
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
-from .models import Prescription, SummaryReport, Medication
+from .models import Prescription, Medication
 from .forms import PrescriptionForm, MedicationForm
 from django.utils import timezone
-from django.template.loader import get_template
-from xhtml2pdf import pisa
 from django.contrib import messages
 
 # Existing pharmacy view
@@ -17,17 +15,13 @@ class Pharmacy(View):
 class Prescriptions(View):
     def get(self, request):
         return render(request, 'prescriptions.html', {})
-    
-# This is a sample view for handling the Add Prescription Form page
+
+# Add Prescription view
 class AddPrescriptionView(View):
     def get(self, request):
-        # Display the form page
         return render(request, 'prescriptions.html')
     
     def post(self, request):
-        # Handle form submission
-        # Assuming that 'Prescription' is a model in models.py with fields
-        # that correspond to the form fields (e.g., first_name, last_name, etc.)
         try:
             first_name = request.POST.get('first_name')
             last_name = request.POST.get('last_name')
@@ -40,9 +34,18 @@ class AddPrescriptionView(View):
             medications = request.POST.getlist('medication[]')
             dosages = request.POST.getlist('dosage[]')
             frequencies = request.POST.getlist('frequency[]')
-            
+            allergies = request.POST.getlist('allergies[]')
+            addresses = request.POST.getlist('address[]')
+            third_party_code = request.POST.getlist('third_party_code[]')
+            conditions = request.POST.getlist('conditions[]')
+            drug_quantity = request.POST.getlist('drug_quantity[]')
+            drug_code = request.POST.getlist('drug_code[]')
+            directions = request.POST.getlist('directions[]')
+
             # Save each treatment entry in the database
-            for medication, dosage, frequency in zip(medications, dosages, frequencies):
+            for medication, dosage, frequency, allergy, address, third_party, condition, quantity, code, direction in zip(
+                medications, dosages, frequencies, allergies, addresses, third_party_code, conditions, drug_quantity, drug_code, directions):
+
                 Prescription.objects.create(
                     first_name=first_name,
                     last_name=last_name,
@@ -53,9 +56,16 @@ class AddPrescriptionView(View):
                     medication=medication,
                     dosage=dosage,
                     frequency=frequency,
+                    allergies=allergy or "None",  # Default to 'None' if missing
+                    addresses=address or "None",  # Default to 'None' if missing
+                    third_party_code=third_party or "None",
+                    conditions=condition or "None",
+                    drug_quantity=quantity or 0,  # Default to 0 if missing
+                    drug_code=code or "None",
+                    directions=direction or "None",
                     created_at=timezone.now()
                 )
-                
+            
             return redirect('success_page')  # Redirect to a success page or prescriptions list after submission
 
         except Exception as e:
@@ -64,17 +74,14 @@ class AddPrescriptionView(View):
         
 class ViewPrescriptionsView(View):
     def get(self, request):
-        # Initially display all prescriptions or none until the user filters
         prescriptions = Prescription.objects.all()
         return render(request, 'view_prescriptions.html', {'prescriptions': prescriptions})
 
     def post(self, request):
-        # Retrieve form inputs
         first_name = request.POST.get('first_name')
         last_name = request.POST.get('last_name')
         patient_id = request.POST.get('patient_id')
 
-        # Filter prescriptions based on form inputs
         prescriptions = Prescription.objects.all()
 
         if first_name:
@@ -84,73 +91,47 @@ class ViewPrescriptionsView(View):
         if patient_id:
             prescriptions = prescriptions.filter(patient_id=patient_id)
 
-        # Render the filtered results
         return render(request, 'view_prescriptions.html', {'prescriptions': prescriptions})
 
 def submit_prescription(request):
     if request.method == "POST":
         form = PrescriptionForm(request.POST)
         if form.is_valid():
-            form.save()  # Save the prescription
-            return redirect('prescriptions')  # Redirect to prescriptions page or another page
+            form.save()
+            return redirect('prescriptions')
     else:
         form = PrescriptionForm()
     return render(request, 'prescriptions.html', {'form': form})
 
-# Generate report for all prescriptions
+class GenerateReportView(View):
+    def get(self, request, prescription_id):
+        prescription = get_object_or_404(Prescription, pk=prescription_id)
+        
+        context = {
+            'report': {
+                'id': prescription_id,
+                'hospital_name': "Health Pin Clinic & Services",
+                'patient_name': f"{prescription.first_name} {prescription.last_name}",
+                'birth_date': prescription.date_signed,
+                'allergies': prescription.allergies or "None",
+                'address': prescription.address or "Unknown",
+                'city': prescription.city or "Unknown",
+                'state': prescription.state or "Unknown",
+                'third_party_code': prescription.third_party_code or "N/A",
+                'conditions': prescription.conditions or "None",
+                'status': "Active", 
+                'drug_quantity': prescription.drug_quantity or 0,
+                'dosage': prescription.dosage or "N/A",
+                'date_issued': prescription.date_signed,
+                'drug_code': prescription.drug_code or "N/A",
+                'directions': prescription.directions or "No directions provided",
+            }
+        }
+        return render(request, 'summary_report.html', context)
+
 def generate_report(request):
-    prescriptions = Prescription.objects.all()  # Replace with filtering logic if needed
-
-    # Pass data to the summary report template
-    return render(request, 'summary_report.html', {
-        'prescriptions': prescriptions
-    })
-
-def summary_report_view(request, report_id):
-    report = get_object_or_404(SummaryReport, id=report_id)
-    context = {'report': report}
-    return render(request, 'summary_report.html', context)
-
-def export_pdf_view(request, report_id):
-    report = get_object_or_404(SummaryReport, id=report_id)
-    template_path = 'summary_report_pdf.html'
-    context = {'report': report}
-    
-    # Render the template to an HTML string
-    template = get_template(template_path)
-    html = template.render(context)
-    
-    # Create a PDF from the HTML string
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename="SummaryReport_{report_id}.pdf"'
-    
-    # Generate PDF
-    pisa_status = pisa.CreatePDF(html, dest=response)
-    if pisa_status.err:
-        return HttpResponse("We had some errors with the PDF generation")
-    
-    return response
-
-# Export report as PDF
-def export_pdf(request):
-    prescriptions = Prescription.objects.all()  # Replace with actual filtering logic
-    template_path = 'summary_report_pdf.html'
-    context = {'prescriptions': prescriptions}
-    
-    # Render the template to an HTML string
-    template = get_template(template_path)
-    html = template.render(context)
-    
-    # Create a PDF from the HTML string
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="Prescription_Summary.pdf"'
-    
-    # Generate PDF
-    pisa_status = pisa.CreatePDF(html, dest=response)
-    if pisa_status.err:
-        return HttpResponse("We had some errors with the PDF generation")
-    
-    return response
+    prescriptions = Prescription.objects.all()
+    return render(request, 'summary_report_all.html', {'prescriptions': prescriptions})
 
 class ManageMedicationsView(View):
     def get(self, request):
@@ -161,48 +142,41 @@ def manage_medications(request):
 
 class AddMedicationView(View):
     def get(self, request):
-        # Render an empty form for adding medication
         form = MedicationForm()
         return render(request, 'add_medication.html', {'form': form})
 
     def post(self, request):
-        # Handle form submission
         form = MedicationForm(request.POST)
         if form.is_valid():
-            form.save()  # Save the medication record to the database
+            form.save()
             messages.success(request, "Medication added successfully!")
-            return redirect('view_medications')  # Redirect to the view medications page
+            return redirect('view_medications')
         else:
             messages.error(request, "Error adding medication. Please check the form and try again.")
         return render(request, 'add_medication.html', {'form': form})
 
-
 class ViewMedicationsView(View):
     def get(self, request):
-        # Retrieve filter and search parameters from the GET request
         query = request.GET.get('search', '')
         condition1 = request.GET.get('condition1', '')
         condition2 = request.GET.get('condition2', '')
         med_type = request.GET.get('med_type', '')
         
-        # Fetch all medications
         medications = Medication.objects.all()
 
-        # Apply search filters dynamically
         if query:
             medications = medications.filter(medication_name__icontains=query)
         if condition1:
-            medications = medications.filter(description__icontains=condition1)  # Adjust condition field name
+            medications = medications.filter(description__icontains=condition1)
         if condition2:
-            medications = medications.filter(description__icontains=condition2)  # Adjust condition field name
+            medications = medications.filter(description__icontains=condition2)
         if med_type:
-            medications = medications.filter(description__icontains=med_type)  # Use 'description' for med_type
+            medications = medications.filter(description__icontains=med_type)
 
-        # Pass medications to the template for display
         return render(request, 'view_medications.html', {
             'medications': medications,
-            'search_query': query,   # Pass the current search query back to the template
-            'condition1': condition1,  # Pass selected filters to the template
+            'search_query': query,
+            'condition1': condition1,
             'condition2': condition2,
             'med_type': med_type,
         })
@@ -217,7 +191,7 @@ def edit_medication(request, id):
         form = MedicationForm(request.POST, instance=medication)
         if form.is_valid():
             form.save()
-            return redirect('view_medications')  # Redirect to the medication list or other page
+            return redirect('view_medications')
     else:
         form = MedicationForm(instance=medication)
     return render(request, 'pharmacy/edit_medication.html', {'form': form})
@@ -230,7 +204,7 @@ def delete_medication(request, id):
     medication = get_object_or_404(Medication, id=id)
     if request.method == "POST":
         medication.delete()
-        return redirect('view_medications')  # Redirect to medication list or another page
+        return redirect('view_medications')
     return render(request, 'pharmacy/delete_medication_confirm.html', {'medication': medication})
 
 def help_page(request):
@@ -246,6 +220,5 @@ def send_support_ticket(request):
     if request.method == "POST":
         subject = request.POST.get('subject')
         reason = request.POST.get('reason')
-        # Handle the data (e.g., save to database, send email, etc.)
         return HttpResponse(f"Support ticket received: {subject}")
     return HttpResponse("Invalid request method.")
